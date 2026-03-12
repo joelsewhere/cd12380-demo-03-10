@@ -1,1 +1,1 @@
-# ELT: Extract
+# ELT: SQL Validation
