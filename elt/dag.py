@@ -164,7 +164,7 @@ def quotes_analytics():
         column_checks, table_checks
 
     # ── Cross-table check ──────────────────────────────────────────
-    # Every author in tag_engagement must appear in author_geo_stats.
+    # Every author in "raw.scraped_quotes.authors" must appear in author_geo_stats.
     # If this fails it means the join is failing
     cross_table_check = SQLCheckOperator(
         task_id='cross_table_author_consistency',
