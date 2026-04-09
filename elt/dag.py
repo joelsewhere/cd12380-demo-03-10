@@ -172,21 +172,18 @@ def quotes_analytics():
         sql=f"""
             SELECT COUNT(*) = 0
             FROM (
-                SELECT DISTINCT author
-                FROM {TAG_ENGAGEMENT}
-                WHERE author NOT IN (
-                    SELECT author_name FROM {AUTHOR_GEO_STATS}
+                SELECT DISTINCT author_name
+                FROM "raw".scraped_quotes.authors
+                WHERE author_name NOT IN (
+                    SELECT author_name FROM analytics.scraped_quotes.author_geo_stats
                 )
             )
         """,
     )
 
-    # ── Wiring ────────────────────────────────────────────────────────────────
-    author_geo_stats >> check_author_geo_stats()
-    tag_engagement   >> check_tag_engagement()
-
+    # ── Dependencies ──────────────────────────────────────────────────
     # Cross-table check runs after both tables are verified individually
-    [check_author_geo_stats(), check_tag_engagement()] >> cross_table_check
-
+    author_geo_stats >> check_author_geo_stats() >> cross_table_check
+    tag_engagement   >> check_tag_engagement() >> cross_table_check
 
 quotes_analytics()
