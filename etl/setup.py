@@ -1,4 +1,5 @@
 from airflow.sdk import dag, task, task_group
+from airflow.providers.standard.operators.empty import EmptyOperator
 from airflow.providers.common.sql.operators.sql import BranchSQLOperator, SQLExecuteQueryOperator
 
 DATABASES = [
@@ -23,8 +24,8 @@ def setup():
                     WHERE datname = '{{ params.database }}';
                 """,
                 params={'database': database},
-                follow_task_ids_if_true=[],
-                follow_task_ids_id_false=[f'{group}.create']
+                follow_task_ids_if_true=[f'{group}.exists'],
+                follow_task_ids_if_false=[f'{group}.create']
             )
 
             create = SQLExecuteQueryOperator(
@@ -33,6 +34,12 @@ def setup():
                 sql="CREATE DATABASE {{ params.database }};",
                 params={"database": database}
                 )
+            
+            exists = EmptyOperator(
+                task_id="exists"
+                )
+            
+            check_exists >> [create, exists]
             
         group()
 
