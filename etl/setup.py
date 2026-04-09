@@ -17,20 +17,20 @@ def setup():
 
             check_exists = BranchSQLOperator(
                 task_id="check_exists",
-                conn_id="redshift_default",
+                conn_id="redshift_raw",
                 sql="""
                     SELECT COUNT(*) > 0 
                     FROM pg_database 
                     WHERE datname = '{{ params.database }}';
                 """,
                 params={'database': database},
-                follow_task_ids_if_true=[f'{group}.exists'],
-                follow_task_ids_if_false=[f'{group}.create']
+                follow_task_ids_if_true=[f'{database}.exists'],
+                follow_task_ids_if_false=[f'{database}.create']
             )
 
             create = SQLExecuteQueryOperator(
                 task_id="create",
-                conn_id="redshift_default",
+                conn_id="redshift_raw",
                 sql="CREATE DATABASE {{ params.database }};",
                 params={"database": database}
                 )
